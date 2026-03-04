@@ -254,6 +254,17 @@ This confirms the pipeline successfully processed all accounts.
 
 ---
 
+---
+
+## Change Diff Viewer
+
+To make onboarding updates easier to review, the repository includes a simple **CLI diff viewer**.
+
+This tool reads the `changes.json` file and displays a human-readable summary of what changed between **v1 and v2** configurations.
+
+Run:
+
+
 ## Account Memo Schema
 
 Each account memo contains structured fields including:
