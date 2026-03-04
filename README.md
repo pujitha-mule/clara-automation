@@ -254,8 +254,6 @@ This confirms the pipeline successfully processed all accounts.
 
 ---
 
----
-
 ## Change Diff Viewer
 
 To make onboarding updates easier to review, the repository includes a simple **CLI diff viewer**.
