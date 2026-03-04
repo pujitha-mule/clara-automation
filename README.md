@@ -2,17 +2,17 @@
 
 ## Overview
 
-This project implements a zero-cost automation pipeline that converts demo call transcripts into preliminary AI voice agent configurations and then updates those configurations using onboarding call information.
+This project implements a **zero-cost automation pipeline** that converts demo call transcripts into preliminary AI voice agent configurations and then updates those configurations using onboarding call information.
 
-The pipeline mirrors the operational workflow used during Clara Answers deployments:
+The pipeline mirrors the operational workflow used during **Clara Answers deployments**:
 
-1. A demo call transcript is analyzed to generate an initial Retell agent configuration (v1).
-2. An onboarding call transcript refines the configuration with confirmed operational rules.
-3. The system produces an updated agent configuration (v2) along with a changelog that records what changed.
+- A demo call transcript is analyzed to generate an initial Retell agent configuration (**v1**).
+- An onboarding call transcript refines the configuration with confirmed operational rules.
+- The system produces an updated agent configuration (**v2**) along with a changelog that records what changed.
 
 The pipeline processes a dataset of **5 demo call transcripts and 5 onboarding call transcripts**, generating structured account configurations and versioned agent specifications for each account.
 
-The goal of the system is to convert unstructured conversations into structured operational logic that can be used to configure an AI voice agent reliably.
+The goal of the system is to convert **unstructured conversations into structured operational logic** that can be used to configure an AI voice agent reliably.
 
 ---
 
@@ -20,28 +20,42 @@ The goal of the system is to convert unstructured conversations into structured 
 
 Pipeline stages:
 
-Demo Transcript  
-↓  
-extract_demo.py  
-↓  
-Account Memo JSON (v1)  
-↓  
-generate_agent_spec.py  
-↓  
-Retell Agent Draft Specification (v1)  
-↓  
-Onboarding Transcript  
-↓  
-process_onboarding.py  
-↓  
-Updated Memo (v2) + Updated Agent Spec + Changelog  
+```
+                +----------------------+
+                | Demo Call Transcript |
+                +----------+-----------+
+                           |
+                           v
+                   extract_demo.py
+                           |
+                           v
+                Account Memo JSON (v1)
+                           |
+                           v
+                 generate_agent_spec.py
+                           |
+                           v
+               Retell Agent Draft Spec (v1)
+                           |
+                           v
+                Onboarding Transcript
+                           |
+                           v
+                 process_onboarding.py
+                           |
+                           v
+        Account Memo (v2) + Agent Spec (v2)
+                           |
+                           v
+                 Changelog + Summary
+```
 
 Design goals:
 
-- Repeatable execution  
-- Version-controlled outputs  
-- Idempotent processing  
-- Zero-cost tooling  
+- Repeatable execution
+- Version-controlled outputs
+- Idempotent processing
+- Zero-cost tooling
 
 ---
 
@@ -149,9 +163,9 @@ The scripts output **progress logs for each processed account** to verify execut
 Pipeline steps:
 
 1. Extract structured account information from demo transcripts  
-2. Generate preliminary Retell agent configurations (v1)  
+2. Generate preliminary Retell agent configurations (**v1**)  
 3. Process onboarding transcripts to refine configurations  
-4. Generate updated agent configurations (v2) and changelogs  
+4. Generate updated agent configurations (**v2**) and changelogs  
 
 ---
 
@@ -276,7 +290,7 @@ The pipeline generates a JSON representation of the agent configuration includin
 - emergency routing behavior  
 - call transfer protocol  
 - fallback protocol  
-- configuration version (v1 or v2)  
+- configuration version (**v1 or v2**)  
 
 This JSON mirrors how a Retell voice agent would be configured in production.
 
@@ -311,7 +325,7 @@ The pipeline is designed to be safe to run multiple times.
 - If an account already has a generated **v1 configuration**, the demo extraction step is skipped.
 - If onboarding updates were already applied, the system avoids recreating duplicate versions.
 
-This ensures repeatable and reliable automation behavior.
+This ensures **repeatable and reliable automation behavior**.
 
 ---
 
@@ -330,26 +344,17 @@ The entire system runs locally using **free tools and requires no paid APIs or e
 
 ---
 
-# Limitations
+# Production Deployment Design
 
-- Transcript extraction uses rule-based parsing rather than semantic language models.
-- Some routing logic remains placeholder when transcripts contain incomplete information.
-- Retell agent creation is simulated through configuration JSON instead of direct API integration.
+In a production environment, this pipeline could be extended with:
 
-These limitations reflect realistic onboarding scenarios where demo conversations rarely include complete operational details.
-
----
-
-# Future Improvements
-
-With production access, the system could be extended with:
-
-- LLM-based transcript understanding  
-- Direct Retell API integration  
-- Automatic audio transcription  
-- Database-backed storage  
-- Dashboard for reviewing configuration updates  
-- Visual diff viewer for version comparisons  
+- Whisper-based speech-to-text transcription
+- Direct Retell API integration
+- ServiceTrade integration for automated job creation
+- PostgreSQL or Supabase database storage
+- Monitoring and alerting for failed onboarding updates
+- Dashboard for reviewing configuration diffs
+- Queue-based processing for large-scale onboarding pipelines
 
 ---
 
@@ -357,6 +362,6 @@ With production access, the system could be extended with:
 
 This project implements an automated pipeline that converts demo and onboarding conversations into structured Retell agent configurations.
 
-The system generates an initial agent specification from demo calls (**v1**) and updates it with operational details captured during onboarding (**v2**), while preserving version history and change tracking.
+The system generates an initial configuration from demo calls (**v1**) and updates it with confirmed operational rules from onboarding (**v2**) while preserving version history and change tracking.
 
-The architecture emphasizes reproducibility, safe automation, and zero-cost tooling.
+The architecture emphasizes **automation reliability, reproducibility, and zero-cost tooling**.
