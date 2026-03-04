@@ -1,5 +1,11 @@
-We have confirmed business hours are Monday to Friday 8 AM to 5 PM Eastern Time.
+Company: Northside HVAC
 
-Please add gas leak as an emergency trigger.
+Business hours: Monday to Friday 8am to 6pm MST.
 
-If transfer fails after 60 seconds, dispatch must be notified.
+Emergency definition:
+- heating failure
+- cooling failure
+
+Transfer timeout: 50 seconds.
+
+Emergency HVAC failures should be escalated to the on-call technician.

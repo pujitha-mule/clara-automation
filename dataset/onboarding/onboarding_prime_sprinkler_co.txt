@@ -1,0 +1,12 @@
+Company: Evergreen Facilities Maintenance
+
+Business hours: Monday to Friday 7am to 6pm PST.
+
+Emergency definition:
+- electrical hazard
+- fire alarm issue
+
+Transfer timeout: 40 seconds.
+
+After hours, emergency facility issues should be routed to the maintenance supervisor.
+Inspection requests should be handled during normal business hours.

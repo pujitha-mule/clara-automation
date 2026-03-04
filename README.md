@@ -1,281 +1,347 @@
-# Clara Answers – Zero-Cost Onboarding Automation Pipeline
+# Clara Automation Pipeline
 
 ## Overview
 
-This project implements a fully automated, zero-cost onboarding pipeline that converts demo and onboarding call transcripts into structured Retell agent configurations.
+This project implements a zero-cost automation pipeline that converts demo call transcripts into preliminary AI voice agent configurations and then updates those configurations using onboarding call information.
 
-It simulates Clara’s real production workflow:
+The pipeline mirrors the operational workflow used during Clara Answers deployments:
 
-**Demo Call → Preliminary Agent (v1)**  
-**Onboarding Update → Versioned Agent Revision (v2, v3, …)**
+1. A demo call transcript is analyzed to generate an initial Retell agent configuration (v1).
+2. An onboarding call transcript refines the configuration with confirmed operational rules.
+3. The system produces an updated agent configuration (v2) along with a changelog that records what changed.
 
-The system is:
-
-- Deterministic  
-- Idempotent  
-- Version-controlled  
-- Batch-capable  
-- Fully reproducible  
-- Zero-cost (no paid APIs or LLMs used)
-
-This implementation behaves like a small internal onboarding automation product rather than a one-off script.
+The goal of the system is to convert unstructured conversations into structured operational logic that can be used to configure an AI voice agent reliably.
 
 ---
 
-# Architecture
+## Architecture
 
-## Pipeline A – Demo → v1
+Demo Call Transcript  
+↓  
+Demo Extraction  
+↓  
+Account Memo (v1)  
+↓  
+Agent Spec Generation  
+↓  
+Retell Agent Draft (v1)  
+↓  
+Onboarding Transcript  
+↓  
+Update Engine  
+↓  
+Agent Spec (v2) + Changelog  
 
-For each demo transcript inside:
+Pipeline stages:
 
-```
-dataset/demo/
-```
+Demo Transcript  
+↓  
+extract_demo.py  
+↓  
+Account Memo JSON (v1)  
+↓  
+generate_agent_spec.py  
+↓  
+Retell Agent Draft Specification  
+↓  
+Onboarding Transcript  
+↓  
+process_onboarding.py  
+↓  
+Updated Memo (v2) + Updated Agent Spec + Changelog  
 
-The system:
+Design goals:
 
-1. Extracts structured account data using rule-based logic  
-2. Validates against a strict schema  
-3. Generates `memo.json`  
-4. Generates `agent_spec.json`  
-5. Saves output under:
-
-```
-outputs/accounts/<account_id>/v1/
-```
-
-### Account ID Strategy
-
-The system extracts the company name from the transcript and converts it into a deterministic `account_id` using slug formatting.
-
-Example:
-```
-"Metro Fire Systems" → metro_fire_systems
-```
-
-This ensures:
-
+- Repeatable execution  
+- Version-controlled outputs  
 - Idempotent processing  
-- No duplicate accounts  
-- Clean folder structure  
-- Safe re-runs  
-
-Already processed demo accounts are skipped automatically.
+- Zero-cost tooling  
 
 ---
 
-## Pipeline B – Onboarding → Versioned Update
+## Requirements
 
-For each onboarding transcript inside:
-
-```
-dataset/onboarding/
-```
-
-The system:
-
-1. Derives `account_id` from filename  
-   Example:
-   ```
-   onboarding_metro_fire_systems.txt → metro_fire_systems
-   ```
-
-2. Loads the latest version (v1, v2, v3…)  
-3. Extracts structured updates into a patch object  
-4. Applies field-level updates only to changed fields  
-5. Creates the next version folder:
-
-```
-v2/
-v3/
-v4/
-```
-
-6. Regenerates `agent_spec.json`  
-7. Generates a structured changelog:
-   ```
-   changes_v2.md
-   ```
-
-If onboarding arrives for an unknown account, the system logs a safe warning without breaking execution.
+- Python 3.9+
+- No external paid APIs or services
+- Runs locally using standard Python libraries
 
 ---
 
-# Version Semantics
+## Repository Structure
 
-- **v1 (Demo-derived):** Exploratory configuration based strictly on what is explicitly mentioned during the demo call.
-- **v2+ (Onboarding-derived):** Operationally confirmed configuration that overrides demo assumptions while preserving version history.
+clara-automation/
 
-This separation mirrors Clara’s real onboarding lifecycle and prevents silent assumption drift.
+dataset/  
+&nbsp;&nbsp;demo/  
+&nbsp;&nbsp;&nbsp;&nbsp;demo_001.txt  
+&nbsp;&nbsp;&nbsp;&nbsp;demo_002.txt  
+&nbsp;&nbsp;&nbsp;&nbsp;demo_003.txt  
+&nbsp;&nbsp;&nbsp;&nbsp;demo_004.txt  
+&nbsp;&nbsp;&nbsp;&nbsp;demo_005.txt  
 
----
+&nbsp;&nbsp;onboarding/  
+&nbsp;&nbsp;&nbsp;&nbsp;onboarding_acme_electrical_services.txt  
+&nbsp;&nbsp;&nbsp;&nbsp;onboarding_evergreen_facilities_maintenance.txt  
+&nbsp;&nbsp;&nbsp;&nbsp;onboarding_metro_fire_systems.txt  
+&nbsp;&nbsp;&nbsp;&nbsp;onboarding_northside_hvac.txt  
+&nbsp;&nbsp;&nbsp;&nbsp;onboarding_prime_sprinkler_co.txt  
 
-# Data Integrity Policy (No Hallucination)
+scripts/  
+&nbsp;&nbsp;extract_demo.py  
+&nbsp;&nbsp;generate_agent_spec.py  
+&nbsp;&nbsp;process_onboarding.py  
+&nbsp;&nbsp;run_pipeline.py  
 
-The system never invents or assumes missing configuration details.
+outputs/  
+&nbsp;&nbsp;accounts/  
+&nbsp;&nbsp;&nbsp;&nbsp;<account_id>/  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;v1/  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;account_memo.json  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;agent_spec.json  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;v2/  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;account_memo.json  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;agent_spec.json  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;changes.json  
 
-If information is not explicitly stated in the transcript:
-
-- Fields remain structured-null (within a strict schema)
-- Missing details are added to `questions_or_unknowns`
-- No defaults are silently applied
-
-This ensures safe configuration generation and prevents hallucinated operational rules.
-
----
-
-# Schema Discipline
-
-All account data follows a strict structured schema.
-
-Onboarding updates are first extracted into a `patch` object and then merged field-by-field into the latest version.
-
-The system never regenerates the entire memo blindly.
-
-This preserves configuration stability and enables safe version evolution.
-
----
-
-# Folder Structure
-
-```
-dataset/
-    demo/
-    onboarding/
-
-outputs/
-    accounts/
-        <account_id>/
-            v1/
-                memo.json
-                agent_spec.json
-            v2/
-                memo.json
-                agent_spec.json
-                changes_v2.md
-
-scripts/
-    extract_demo.py
-    process_onboarding.py
-    generate_agent_spec.py
+workflows/  
+&nbsp;&nbsp;clara_pipeline.json  
 
 README.md
-.gitignore
-```
 
 ---
 
-# How To Run
+## How to Run the Pipeline
 
-## Step 1 – Process Demo Calls
+1. Clone the repository.
 
-```bash
-python scripts/extract_demo.py
-```
+2. Place demo transcripts inside:
 
-Creates `v1` for all demo transcripts.
+dataset/demo/
 
----
+Example files:
 
-## Step 2 – Process Onboarding Updates
+demo_001.txt  
+demo_002.txt  
 
-```bash
-python scripts/process_onboarding.py
-```
+3. Place onboarding transcripts inside:
 
-Creates the next version automatically (v2, v3, etc.).
+dataset/onboarding/
 
-The system is batch-capable and processes all transcripts in the respective folders.
+Files must follow the naming format:
 
----
+onboarding_<account_id>.txt
 
-# Idempotency
+Example:
 
-Running pipelines multiple times:
+onboarding_metro_fire_systems.txt
 
-- Does not duplicate data  
-- Does not recreate versions unnecessarily  
-- Skips already processed demo accounts  
-- Detects “No changes” for onboarding  
+4. Run the pipeline:
 
-This ensures safe re-execution in production-like environments.
+python scripts/run_pipeline.py
 
----
+The scripts output progress logs for each processed account to help verify execution.
 
-# Prompt Hygiene
+Pipeline steps:
 
-Generated `agent_spec.json` includes:
-
-- Business hours flow  
-- After-hours flow  
-- Emergency confirmation logic  
-- Transfer protocol  
-- Fallback protocol  
-- Professional voice style  
-
-No hallucinated values are inserted.
-
-If data is missing, it is clearly marked as:
-
-```
-"Not specified"
-```
+1. Extract structured account information from demo transcripts  
+2. Generate preliminary Retell agent configurations (v1)  
+3. Process onboarding transcripts to refine configurations  
+4. Generate updated agent configurations (v2) and changelogs  
 
 ---
 
-# Error Handling
+## Output Structure
 
-The system safely handles:
+Example output for a single account:
 
-- Unknown accounts  
-- Missing demo transcripts  
-- Missing previous versions  
-- No changes detected  
-- Safe re-runs  
+outputs/accounts/metro_fire_systems/
 
-Errors are logged without breaking batch execution.
+v1/  
+&nbsp;&nbsp;account_memo.json  
+&nbsp;&nbsp;agent_spec.json  
 
----
+v2/  
+&nbsp;&nbsp;account_memo.json  
+&nbsp;&nbsp;agent_spec.json  
 
-# Zero-Cost Implementation
+changes.json
 
-- No paid APIs  
-- No paid LLM usage  
-- Pure Python implementation  
-- Rule-based extraction  
-- Fully reproducible locally  
+account_memo.json  
+Contains structured operational information extracted from transcripts.
 
-The entire pipeline can be executed without external subscriptions.
+agent_spec.json  
+Contains the generated Retell agent configuration including prompt, routing logic, and transfer behavior.
 
----
-
-# Limitations
-
-- Rule-based extraction (not ML-based)  
-- Limited NLP pattern coverage  
-- No UI dashboard (CLI-based execution)
+changes.json  
+Tracks updates introduced during onboarding.
 
 ---
 
-# Future Improvements (Production Vision)
+## Pipeline Summary Report
 
-With production access, improvements would include:
+After the pipeline completes, a summary file is generated:
 
-- Structured onboarding form ingestion  
-- Diff visualization UI  
-- Supabase-backed persistent storage  
-- Webhook-triggered automation  
-- LLM-based semantic extraction (controlled environment)  
-- Retell API auto-deployment  
+outputs/summary_report.json
+
+Example:
+
+{
+  "total_accounts": 5,
+  "accounts": [
+    "acme_electrical_services",
+    "evergreen_facilities_maintenance",
+    "metro_fire_systems",
+    "northside_hvac",
+    "prime_sprinkler_co"
+  ]
+}
+
+This confirms that the pipeline processed all accounts successfully.
 
 ---
 
-# What This Demonstrates
+## Account Memo Schema
 
-- Systems thinking  
-- Version-controlled architecture  
-- Deterministic automation design  
-- Safe configuration lifecycle management  
-- Production-aware engineering decisions  
+Each account memo contains structured fields including:
 
-This implementation reflects how an internal onboarding automation engine would be designed for reliability and scale.
+- account_id  
+- company_name  
+- business_hours  
+- office_address  
+- services_supported  
+- emergency_definition  
+- emergency_routing_rules  
+- non_emergency_routing_rules  
+- call_transfer_rules  
+- integration_constraints  
+- after_hours_flow_summary  
+- office_hours_flow_summary  
+- questions_or_unknowns  
+- notes  
+
+If information is missing in transcripts, it is recorded in questions_or_unknowns rather than being inferred.
+
+---
+
+## Agent Prompt Behavior
+
+Generated agent prompts follow two primary call flows.
+
+### Business Hours Flow
+
+- Greeting  
+- Ask caller purpose  
+- Collect name and phone number  
+- Route or transfer the call  
+- If transfer fails, collect details and notify dispatch  
+- Ask if anything else is needed  
+- Close call  
+
+### After Hours Flow
+
+- Greeting  
+- Ask caller purpose  
+- Determine if the request is an emergency  
+- If emergency, collect name, number, and address immediately  
+- Attempt transfer to emergency contact  
+- If transfer fails, assure follow-up  
+- If non-emergency, collect request details for the next business day  
+- Ask if anything else is needed  
+- Close call  
+
+---
+
+## Retell Agent Draft Specification
+
+The pipeline generates a JSON representation of the agent configuration including:
+
+- agent name  
+- voice style  
+- system prompt  
+- business hours and timezone  
+- emergency routing behavior  
+- call transfer protocol  
+- fallback protocol  
+- configuration version (v1 or v2)  
+
+This JSON mirrors how a Retell voice agent would be configured in production.
+
+---
+
+## Orchestration Workflow
+
+The repository includes an exported workflow:
+
+workflows/clara_pipeline.json
+
+This workflow can be imported into n8n to demonstrate how the pipeline would run automatically in a production environment.
+
+Workflow steps:
+
+Manual Trigger  
+↓  
+Run demo extraction script  
+↓  
+Generate agent specification  
+↓  
+Process onboarding updates  
+
+---
+
+## Idempotent Execution
+
+The pipeline is designed to be safe to run multiple times.
+
+If an account already has a generated v1 configuration, the demo extraction step is skipped.
+
+If onboarding updates were already applied, the system avoids recreating duplicate versions.
+
+This ensures repeatable and reliable automation behavior.
+
+---
+
+## Zero-Cost Design
+
+The implementation strictly follows the assignment constraint of zero spend.
+
+Key decisions:
+
+- Rule-based transcript parsing instead of paid LLM APIs  
+- Local JSON storage instead of paid databases  
+- Local script orchestration  
+- Retell agent creation simulated via JSON specification output  
+
+The entire system runs locally using free tools.
+
+---
+
+## Limitations
+
+- Transcript extraction uses rule-based parsing rather than semantic language models.  
+- Some routing logic remains placeholder when transcripts contain incomplete information.  
+- Retell agent creation is simulated through configuration JSON instead of direct API integration.  
+
+These limitations reflect realistic onboarding scenarios where demo conversations rarely include complete operational details.
+
+---
+
+## Future Improvements
+
+With production access, the system could be extended with:
+
+- LLM-based transcript understanding  
+- Direct Retell API integration  
+- Automatic audio transcription  
+- Database-backed storage  
+- Dashboard for reviewing configuration updates  
+- Visual diff viewer for version comparisons  
+
+---
+
+## Summary
+
+This project implements an automated pipeline that converts demo and onboarding conversations into structured Retell agent configurations.
+
+The system generates an initial agent specification from demo calls (v1) and updates it with operational details captured during onboarding (v2), while preserving version history and change tracking.
+
+The architecture emphasizes reproducibility, safe automation, and zero-cost tooling.

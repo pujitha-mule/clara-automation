@@ -1,0 +1,12 @@
+Company: Metro Fire Systems
+
+Business hours: Monday to Friday 8am to 5pm EST.
+
+Emergency definition:
+- sprinkler leak
+- fire alarm activation
+
+Transfer timeout: 60 seconds.
+
+Emergency sprinkler issues should be routed directly to the on-call technician.
+Non-emergency inspection calls can be scheduled during business hours.

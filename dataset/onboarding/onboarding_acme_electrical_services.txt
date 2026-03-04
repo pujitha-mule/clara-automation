@@ -1,0 +1,11 @@
+Company: ACME Electrical Services
+
+Business hours: Monday to Saturday 9am to 6pm EST.
+
+Emergency definition:
+- power outage
+- exposed wiring
+
+Transfer timeout: 45 seconds.
+
+All emergency electrical issues should be transferred to the on-call electrician immediately.

@@ -1,5 +1,10 @@
-Hi, this is Sarah from Metro Fire Systems.
+Company: Metro Fire Systems
 
-We are open Monday through Friday from 7 AM to 4 PM Pacific Time.
+We handle commercial sprinkler inspections and fire alarm maintenance.
+We get a lot of emergency calls when sprinkler lines burst.
 
-Emergency means sprinkler leak or fire alarm active.
+We usually operate weekdays during normal business hours, but I don't have exact times right now.
+
+After hours, we try to forward emergency calls to our on-call technician.
+
+We use ServiceTrade for most of our job management.

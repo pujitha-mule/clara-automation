@@ -1,0 +1,11 @@
+Company: Prime Sprinkler Co
+
+Business hours: Monday to Friday 9am to 5pm CST.
+
+Emergency definition:
+- sprinkler leak
+- alarm trigger
+
+Transfer timeout: 60 seconds.
+
+All sprinkler emergencies should be transferred immediately to dispatch.

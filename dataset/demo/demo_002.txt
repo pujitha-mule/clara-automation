@@ -1,0 +1,10 @@
+Company: ACME Electrical Services
+
+We handle commercial and residential electrical repairs.
+Emergency calls are usually power outages or exposed wiring.
+
+Our office staff answers calls during the day.
+
+After hours, we would want emergencies routed to our on-call electrician.
+
+We sometimes struggle with missed calls during weekends.
