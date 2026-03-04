@@ -10,27 +10,13 @@ The pipeline mirrors the operational workflow used during Clara Answers deployme
 2. An onboarding call transcript refines the configuration with confirmed operational rules.
 3. The system produces an updated agent configuration (v2) along with a changelog that records what changed.
 
+The pipeline processes a dataset of **5 demo call transcripts and 5 onboarding call transcripts**, generating structured account configurations and versioned agent specifications for each account.
+
 The goal of the system is to convert unstructured conversations into structured operational logic that can be used to configure an AI voice agent reliably.
 
 ---
 
-## Architecture
-
-Demo Call Transcript  
-↓  
-Demo Extraction  
-↓  
-Account Memo (v1)  
-↓  
-Agent Spec Generation  
-↓  
-Retell Agent Draft (v1)  
-↓  
-Onboarding Transcript  
-↓  
-Update Engine  
-↓  
-Agent Spec (v2) + Changelog  
+# Architecture
 
 Pipeline stages:
 
@@ -42,7 +28,7 @@ Account Memo JSON (v1)
 ↓  
 generate_agent_spec.py  
 ↓  
-Retell Agent Draft Specification  
+Retell Agent Draft Specification (v1)  
 ↓  
 Onboarding Transcript  
 ↓  
@@ -59,87 +45,106 @@ Design goals:
 
 ---
 
-## Requirements
+# Requirements
 
-- Python 3.9+
+- Python **3.9+**
 - No external paid APIs or services
 - Runs locally using standard Python libraries
 
 ---
 
-## Repository Structure
+# Repository Structure
 
+```
 clara-automation/
 
-dataset/  
-&nbsp;&nbsp;demo/  
-&nbsp;&nbsp;&nbsp;&nbsp;demo_001.txt  
-&nbsp;&nbsp;&nbsp;&nbsp;demo_002.txt  
-&nbsp;&nbsp;&nbsp;&nbsp;demo_003.txt  
-&nbsp;&nbsp;&nbsp;&nbsp;demo_004.txt  
-&nbsp;&nbsp;&nbsp;&nbsp;demo_005.txt  
+dataset/
+  demo/
+    demo_001.txt
+    demo_002.txt
+    demo_003.txt
+    demo_004.txt
+    demo_005.txt
 
-&nbsp;&nbsp;onboarding/  
-&nbsp;&nbsp;&nbsp;&nbsp;onboarding_acme_electrical_services.txt  
-&nbsp;&nbsp;&nbsp;&nbsp;onboarding_evergreen_facilities_maintenance.txt  
-&nbsp;&nbsp;&nbsp;&nbsp;onboarding_metro_fire_systems.txt  
-&nbsp;&nbsp;&nbsp;&nbsp;onboarding_northside_hvac.txt  
-&nbsp;&nbsp;&nbsp;&nbsp;onboarding_prime_sprinkler_co.txt  
+  onboarding/
+    onboarding_acme_electrical_services.txt
+    onboarding_evergreen_facilities_maintenance.txt
+    onboarding_metro_fire_systems.txt
+    onboarding_northside_hvac.txt
+    onboarding_prime_sprinkler_co.txt
 
-scripts/  
-&nbsp;&nbsp;extract_demo.py  
-&nbsp;&nbsp;generate_agent_spec.py  
-&nbsp;&nbsp;process_onboarding.py  
-&nbsp;&nbsp;run_pipeline.py  
+scripts/
+  extract_demo.py
+  generate_agent_spec.py
+  process_onboarding.py
+  run_pipeline.py
 
-outputs/  
-&nbsp;&nbsp;accounts/  
-&nbsp;&nbsp;&nbsp;&nbsp;<account_id>/  
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;v1/  
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;account_memo.json  
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;agent_spec.json  
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;v2/  
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;account_memo.json  
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;agent_spec.json  
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;changes.json  
+outputs/
+  accounts/
+    <account_id>/
+      v1/
+        account_memo.json
+        agent_spec.json
+      v2/
+        account_memo.json
+        agent_spec.json
+      changes.json
 
-workflows/  
-&nbsp;&nbsp;clara_pipeline.json  
+workflows/
+  clara_pipeline.json
 
 README.md
+```
 
 ---
 
-## How to Run the Pipeline
+# How to Run the Pipeline
 
-1. Clone the repository.
+### 1. Clone the repository
 
-2. Place demo transcripts inside:
+```
+git clone <your_repo_url>
+cd clara-automation
+```
 
+### 2. Place demo transcripts inside
+
+```
 dataset/demo/
-
-Example files:
-
-demo_001.txt  
-demo_002.txt  
-
-3. Place onboarding transcripts inside:
-
-dataset/onboarding/
-
-Files must follow the naming format:
-
-onboarding_<account_id>.txt
+```
 
 Example:
 
+```
+demo_001.txt
+demo_002.txt
+```
+
+### 3. Place onboarding transcripts inside
+
+```
+dataset/onboarding/
+```
+
+Files must follow the naming format:
+
+```
+onboarding_<account_id>.txt
+```
+
+Example:
+
+```
 onboarding_metro_fire_systems.txt
+```
 
-4. Run the pipeline:
+### 4. Run the pipeline
 
+```
 python scripts/run_pipeline.py
+```
 
-The scripts output progress logs for each processed account to help verify execution.
+The scripts output **progress logs for each processed account** to verify execution.
 
 Pipeline steps:
 
@@ -150,41 +155,49 @@ Pipeline steps:
 
 ---
 
-## Output Structure
+# Output Structure
 
 Example output for a single account:
 
+```
 outputs/accounts/metro_fire_systems/
 
-v1/  
-&nbsp;&nbsp;account_memo.json  
-&nbsp;&nbsp;agent_spec.json  
+v1/
+  account_memo.json
+  agent_spec.json
 
-v2/  
-&nbsp;&nbsp;account_memo.json  
-&nbsp;&nbsp;agent_spec.json  
+v2/
+  account_memo.json
+  agent_spec.json
 
 changes.json
+```
 
-account_memo.json  
+### account_memo.json
+
 Contains structured operational information extracted from transcripts.
 
-agent_spec.json  
+### agent_spec.json
+
 Contains the generated Retell agent configuration including prompt, routing logic, and transfer behavior.
 
-changes.json  
+### changes.json
+
 Tracks updates introduced during onboarding.
 
 ---
 
-## Pipeline Summary Report
+# Pipeline Summary Report
 
 After the pipeline completes, a summary file is generated:
 
+```
 outputs/summary_report.json
+```
 
 Example:
 
+```json
 {
   "total_accounts": 5,
   "accounts": [
@@ -195,12 +208,13 @@ Example:
     "prime_sprinkler_co"
   ]
 }
+```
 
-This confirms that the pipeline processed all accounts successfully.
+This confirms the pipeline successfully processed all accounts.
 
 ---
 
-## Account Memo Schema
+# Account Memo Schema
 
 Each account memo contains structured fields including:
 
@@ -219,15 +233,15 @@ Each account memo contains structured fields including:
 - questions_or_unknowns  
 - notes  
 
-If information is missing in transcripts, it is recorded in questions_or_unknowns rather than being inferred.
+If information is missing in transcripts, it is recorded under **questions_or_unknowns** rather than being inferred.
 
 ---
 
-## Agent Prompt Behavior
+# Agent Prompt Behavior
 
 Generated agent prompts follow two primary call flows.
 
-### Business Hours Flow
+## Business Hours Flow
 
 - Greeting  
 - Ask caller purpose  
@@ -237,7 +251,7 @@ Generated agent prompts follow two primary call flows.
 - Ask if anything else is needed  
 - Close call  
 
-### After Hours Flow
+## After Hours Flow
 
 - Greeting  
 - Ask caller purpose  
@@ -251,7 +265,7 @@ Generated agent prompts follow two primary call flows.
 
 ---
 
-## Retell Agent Draft Specification
+# Retell Agent Draft Specification
 
 The pipeline generates a JSON representation of the agent configuration including:
 
@@ -268,13 +282,15 @@ This JSON mirrors how a Retell voice agent would be configured in production.
 
 ---
 
-## Orchestration Workflow
+# Orchestration Workflow
 
 The repository includes an exported workflow:
 
+```
 workflows/clara_pipeline.json
+```
 
-This workflow can be imported into n8n to demonstrate how the pipeline would run automatically in a production environment.
+This workflow can be imported into **n8n** to demonstrate how the pipeline would run automatically in a production environment.
 
 Workflow steps:
 
@@ -288,21 +304,20 @@ Process onboarding updates
 
 ---
 
-## Idempotent Execution
+# Idempotent Execution
 
 The pipeline is designed to be safe to run multiple times.
 
-If an account already has a generated v1 configuration, the demo extraction step is skipped.
-
-If onboarding updates were already applied, the system avoids recreating duplicate versions.
+- If an account already has a generated **v1 configuration**, the demo extraction step is skipped.
+- If onboarding updates were already applied, the system avoids recreating duplicate versions.
 
 This ensures repeatable and reliable automation behavior.
 
 ---
 
-## Zero-Cost Design
+# Zero-Cost Design
 
-The implementation strictly follows the assignment constraint of zero spend.
+The implementation strictly follows the assignment constraint of **zero spend**.
 
 Key decisions:
 
@@ -311,21 +326,21 @@ Key decisions:
 - Local script orchestration  
 - Retell agent creation simulated via JSON specification output  
 
-The entire system runs locally using free tools.
+The entire system runs locally using **free tools and requires no paid APIs or external services**.
 
 ---
 
-## Limitations
+# Limitations
 
-- Transcript extraction uses rule-based parsing rather than semantic language models.  
-- Some routing logic remains placeholder when transcripts contain incomplete information.  
-- Retell agent creation is simulated through configuration JSON instead of direct API integration.  
+- Transcript extraction uses rule-based parsing rather than semantic language models.
+- Some routing logic remains placeholder when transcripts contain incomplete information.
+- Retell agent creation is simulated through configuration JSON instead of direct API integration.
 
 These limitations reflect realistic onboarding scenarios where demo conversations rarely include complete operational details.
 
 ---
 
-## Future Improvements
+# Future Improvements
 
 With production access, the system could be extended with:
 
@@ -338,10 +353,10 @@ With production access, the system could be extended with:
 
 ---
 
-## Summary
+# Summary
 
 This project implements an automated pipeline that converts demo and onboarding conversations into structured Retell agent configurations.
 
-The system generates an initial agent specification from demo calls (v1) and updates it with operational details captured during onboarding (v2), while preserving version history and change tracking.
+The system generates an initial agent specification from demo calls (**v1**) and updates it with operational details captured during onboarding (**v2**), while preserving version history and change tracking.
 
 The architecture emphasizes reproducibility, safe automation, and zero-cost tooling.
