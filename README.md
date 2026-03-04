@@ -16,6 +16,32 @@ The goal of the system is to convert **unstructured conversations into structure
 
 ---
 
+# Quick Start
+
+Run the full automation pipeline locally:
+
+```bash
+git clone <your_repo_url>
+cd clara-automation
+python scripts/run_pipeline.py
+```
+
+After execution, generated outputs will appear in:
+
+```
+outputs/accounts/
+```
+
+Each account will contain:
+
+```
+v1/  → initial agent configuration generated from demo call
+v2/  → updated configuration after onboarding
+changes.json → changelog describing updates between versions
+```
+
+---
+
 # Architecture
 
 Pipeline stages:
