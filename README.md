@@ -16,7 +16,7 @@ The goal of the system is to convert **unstructured conversations into structure
 
 ---
 
-# Quick Start
+## Quick Start
 
 Run the full automation pipeline locally:
 
@@ -35,14 +35,14 @@ outputs/accounts/
 Each account will contain:
 
 ```
-v1/  → initial agent configuration generated from demo call
-v2/  → updated configuration after onboarding
+v1/  → initial agent configuration generated from demo call  
+v2/  → updated configuration after onboarding  
 changes.json → changelog describing updates between versions
 ```
 
 ---
 
-# Architecture
+## Architecture
 
 Pipeline stages:
 
@@ -85,7 +85,7 @@ Design goals:
 
 ---
 
-# Requirements
+## Requirements
 
 - Python **3.9+**
 - No external paid APIs or services
@@ -93,7 +93,7 @@ Design goals:
 
 ---
 
-# Repository Structure
+## Repository Structure
 
 ```
 clara-automation/
@@ -138,7 +138,7 @@ README.md
 
 ---
 
-# How to Run the Pipeline
+## How to Run the Pipeline
 
 ### 1. Clone the repository
 
@@ -195,7 +195,7 @@ Pipeline steps:
 
 ---
 
-# Output Structure
+## Output Structure
 
 Example output for a single account:
 
@@ -227,7 +227,7 @@ Tracks updates introduced during onboarding.
 
 ---
 
-# Pipeline Summary Report
+## Pipeline Summary Report
 
 After the pipeline completes, a summary file is generated:
 
@@ -254,7 +254,7 @@ This confirms the pipeline successfully processed all accounts.
 
 ---
 
-# Account Memo Schema
+## Account Memo Schema
 
 Each account memo contains structured fields including:
 
@@ -277,11 +277,11 @@ If information is missing in transcripts, it is recorded under **questions_or_un
 
 ---
 
-# Agent Prompt Behavior
+## Agent Prompt Behavior
 
 Generated agent prompts follow two primary call flows.
 
-## Business Hours Flow
+### Business Hours Flow
 
 - Greeting  
 - Ask caller purpose  
@@ -291,7 +291,7 @@ Generated agent prompts follow two primary call flows.
 - Ask if anything else is needed  
 - Close call  
 
-## After Hours Flow
+### After Hours Flow
 
 - Greeting  
 - Ask caller purpose  
@@ -305,7 +305,7 @@ Generated agent prompts follow two primary call flows.
 
 ---
 
-# Retell Agent Draft Specification
+## Retell Agent Draft Specification
 
 The pipeline generates a JSON representation of the agent configuration including:
 
@@ -322,7 +322,7 @@ This JSON mirrors how a Retell voice agent would be configured in production.
 
 ---
 
-# Orchestration Workflow
+## Orchestration Workflow
 
 The repository includes an exported workflow:
 
@@ -344,7 +344,7 @@ Process onboarding updates
 
 ---
 
-# Idempotent Execution
+## Idempotent Execution
 
 The pipeline is designed to be safe to run multiple times.
 
@@ -355,7 +355,7 @@ This ensures **repeatable and reliable automation behavior**.
 
 ---
 
-# Zero-Cost Design
+## Zero-Cost Design
 
 The implementation strictly follows the assignment constraint of **zero spend**.
 
@@ -370,21 +370,21 @@ The entire system runs locally using **free tools and requires no paid APIs or e
 
 ---
 
-# Production Deployment Design
+## Production Deployment Design
 
 In a production environment, this pipeline could be extended with:
 
-- Whisper-based speech-to-text transcription
-- Direct Retell API integration
-- ServiceTrade integration for automated job creation
-- PostgreSQL or Supabase database storage
-- Monitoring and alerting for failed onboarding updates
-- Dashboard for reviewing configuration diffs
-- Queue-based processing for large-scale onboarding pipelines
+- Whisper-based speech-to-text transcription  
+- Direct Retell API integration  
+- ServiceTrade integration for automated job creation  
+- PostgreSQL or Supabase database storage  
+- Monitoring and alerting for failed onboarding updates  
+- Dashboard for reviewing configuration diffs  
+- Queue-based processing for large-scale onboarding pipelines  
 
 ---
 
-# Summary
+## Summary
 
 This project implements an automated pipeline that converts demo and onboarding conversations into structured Retell agent configurations.
 
