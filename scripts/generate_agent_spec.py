@@ -83,6 +83,13 @@ def generate_agent_spec(memo):
 
     version = memo.get("metadata", {}).get("version", "v1")
 
+    business_hours = memo.get("business_hours", {})
+    services = memo.get("services_supported", [])
+    emergencies = memo.get("emergency_definition", [])
+
+    transfer_rules = memo.get("call_transfer_rules", {})
+    timeout = transfer_rules.get("timeout_seconds", 60)
+
     agent_spec = {
         "agent_name": f"{company} - Clara",
         "version": version,
@@ -90,16 +97,17 @@ def generate_agent_spec(memo):
         "voice_style": "professional, calm, concise",
 
         "variables": {
-            "timezone": safe(memo.get("business_hours", {}).get("timezone")),
-            "business_hours": memo.get("business_hours", {}),
-            "services_supported": memo.get("services_supported", [])
+            "timezone": safe(business_hours.get("timezone")),
+            "business_hours": business_hours,
+            "services_supported": services if services else ["Not specified"],
+            "emergency_triggers": emergencies if emergencies else ["Not specified"]
         },
 
         "system_prompt": build_system_prompt(memo),
 
         "call_transfer_protocol": {
             "enabled": True,
-            "timeout_seconds": 60,
+            "timeout_seconds": timeout,
             "retry_attempts": 1
         },
 
@@ -145,7 +153,7 @@ def main():
 
         # Idempotency check
         if os.path.exists(output_path):
-            print(f"⚠ Agent spec already exists for {account_id}, skipping.")
+            print(f"⏩ Agent spec already exists for {account_id}, skipping.")
             continue
 
         print(f"🔹 Generating agent spec for {account_id}...")

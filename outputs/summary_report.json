@@ -1,10 +1,32 @@
 {
   "total_accounts": 5,
+  "v1_generated": 5,
+  "v2_generated": 5,
   "accounts": [
-    "acme_electrical_services",
-    "evergreen_facilities_maintenance",
-    "metro_fire_systems",
-    "northside_hvac",
-    "prime_sprinkler_co"
+    {
+      "account_id": "acme_electrical_services",
+      "v1_created": true,
+      "v2_created": true
+    },
+    {
+      "account_id": "evergreen_facilities_maintenance",
+      "v1_created": true,
+      "v2_created": true
+    },
+    {
+      "account_id": "metro_fire_systems",
+      "v1_created": true,
+      "v2_created": true
+    },
+    {
+      "account_id": "northside_hvac",
+      "v1_created": true,
+      "v2_created": true
+    },
+    {
+      "account_id": "prime_sprinkler_co",
+      "v1_created": true,
+      "v2_created": true
+    }
   ]
 }
